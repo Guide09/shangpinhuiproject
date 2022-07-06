@@ -85,7 +85,9 @@ export default {
     this.$store.dispatch("categoryList");
   },
   computed: {
-    ...mapState({categoryList:state=>state.home.categoryList})
+    ...mapState({ 
+      categoryList:state=>state.home.categoryList
+      })
   },
   methods: {
     enterHandler(index) {
