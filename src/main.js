@@ -8,7 +8,7 @@ import store from '@/store'
 
 
 // 三级联动全局注册
-import Typenav from '@/pages/Home/TypeNav'
+import Typenav from '@/components/TypeNav'
 //第一个参数：全局组件的名字
 // 第二个参数：哪一个组件
 Vue.component(Typenav.name,Typenav)

@@ -1,22 +1,26 @@
 <template>
   <div class="type-nav">
-
-    {{category}}
     <div class="container">
+      <!-- 事件的委派 -->
       <div @mouseleave="leaveHandler">
         <h2 class="all">全部商品分类</h2>
         <!--商品分类的地方:虽然刚开始的时候商品分类结构在底部,调整到当前位置，但是页面结构没有太大的变化,因为老师们已经把样式搞定了-->
         <transition name="sort">
-          <div class="sort">
+          <div class="sort" >
             <div class="all-sort-list2">
               <!--一级分类地盘-->
               <div
                 class="item"
-                v-for="(c1, index) in category"
-                :key="c1"
+                v-for="(c1, index) in categoryList"
+                :key="c1.categoryId"
               >
-                <h3 @mouseenter="enterHandler(index)">
-                  <a>{{ c1.categoryName }}</a>
+                <h3
+                  @mouseenter="enterHandler(index)"
+                  :class="{ active: currentIndex == index }"
+                >
+                  <a >{{
+                    c1.categoryName
+                  }}</a>
                 </h3>
                 <!-- 通过JS实现动态行内样式，进行二级、三级分类的显示与隐藏(display:none|block切换的) -->
                 <div
@@ -26,20 +30,25 @@
                   <!--二级分类-->
                   <div
                     class="subitem"
-                    v-for="(c2) in c1.categoryChild"
+                    v-for="(c2, index) in c1.categoryChild"
                     :key="c2.categoryId"
                   >
                     <dl class="fore">
                       <dt>
-                        <a>{{ c2.categoryName }}</a>
+                        <a >{{
+                          c2.categoryName
+                        }}</a>
                       </dt>
                       <dd>
                         <!--三级分类-->
                         <em
-                          v-for="(c3) in c2.categoryChild"
+                          v-for="(c3, index) in c2.categoryChild"
                           :key="c3.categoryId"
                         >
-                          <a>{{ c3.categoryName }}</a>
+                          <a
+                            
+                            >{{ c3.categoryName }}</a
+                          >
                         </em>
                       </dd>
                     </dl>
@@ -73,14 +82,10 @@ export default {
     };
   },
   mounted() {
-    this.$store.dispatch("getCategory");
+    this.$store.dispatch("categoryList");
   },
   computed: {
-    ...mapState({
-      category: (state) => {
-      state.home.category;
-      },
-    }),
+    ...mapState({categoryList:state=>state.home.categoryList})
   },
   methods: {
     enterHandler(index) {

@@ -1,25 +1,26 @@
 
-import {reqCategory} from '@/api'
+import { reqCategory } from '@/api/index'
 //仓库存储数据的地方
-let state = {
-    category: [],
+const state = {
+    categoryList: []
 };
 //唯一可以修改仓库数据地方【工人】
-let mutations = {
-    GETCATEGORY(state, category) {
-        state.category = category;
+const mutations = {
+    CATEGORYLIST(state, categoryList) {
+        state.categoryList = categoryList
     }
 };
-let actions = {
-    async getCategory({commit}){
-        let result = await reqCategory();   
+const actions = {
+    async categoryList({ commit }) {
+        let result = await reqCategory()
         if (result.code == 200) {
-            commit("GETCATEGORY", result.data);
-            console.log(result.data[0])
+            commit("CATEGORYLIST", result.data)
         }
-    },
+    }
 };
-let getters = {};
+const getters = {
+
+};
 
 export default {
     state,
