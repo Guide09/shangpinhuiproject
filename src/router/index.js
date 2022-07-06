@@ -64,7 +64,7 @@ export default new VueRouter({
             meta: { show: false },
         }, {
             path: '*',
-            redirect: Home
+            redirect: '/Home'
         },
     ]
 })

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 // 引入路由
-import router from '@/router'
+import router from './router'
 Vue.config.productionTip = false
 // 引入仓库
 import store from '@/store'

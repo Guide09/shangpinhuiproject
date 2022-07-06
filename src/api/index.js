@@ -1,8 +1,8 @@
 //统一管理项目前部的接口
-import requests from "./request";
+import ajax from "./request";
 
 
-export const reqCategory = () => requests({ method: 'get', url: '/product/getBaseCategoryList'});
+export const reqCategory = () => ajax({url: '/api/product/getBaseCategoryList'});
 
 
 

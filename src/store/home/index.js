@@ -15,7 +15,7 @@ let actions = {
         let result = await reqCategory();   
         if (result.code == 200) {
             commit("GETCATEGORY", result.data);
-            console.log(result.data)
+            console.log(result.data[0])
         }
     },
 };
