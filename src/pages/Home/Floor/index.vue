@@ -14,6 +14,7 @@
       <div class="tab-content">
         <div class="tab-pane">
           <div class="floor-1">
+
             <div class="blockgary">
               <ul class="jd-list">
                 <li v-for="(keyword, index) in floor.keywords" :key="index">
