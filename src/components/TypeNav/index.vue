@@ -2,25 +2,28 @@
   <div class="type-nav">
     <div class="container">
       <!-- 事件的委派 -->
-      <div @mouseleave="leaveHandler">
+      <div @mouseleave="leaveHandler" @mouseenter="entershow">
         <h2 class="all">全部商品分类</h2>
         <!--商品分类的地方:虽然刚开始的时候商品分类结构在底部,调整到当前位置，但是页面结构没有太大的变化,因为老师们已经把样式搞定了-->
         <transition name="sort">
-          <div class="sort" >
-            <div class="all-sort-list2">
+          <div class="sort" v-show="show">
+            <div class="all-sort-list2" @click="goSearch">
               <!--一级分类地盘-->
               <div
                 class="item"
                 v-for="(c1, index) in categoryList"
                 :key="c1.categoryId"
+                :class="{ cur: currentIndex == index }"
               >
                 <h3
                   @mouseenter="enterHandler(index)"
                   :class="{ active: currentIndex == index }"
                 >
-                  <a >{{
-                    c1.categoryName
-                  }}</a>
+                  <a
+                    :data-categoryName="c1.categoryName"
+                    :data-category1Id="c1.categoryId"
+                    >{{ c1.categoryName }}---{{ index }}</a
+                  >
                 </h3>
                 <!-- 通过JS实现动态行内样式，进行二级、三级分类的显示与隐藏(display:none|block切换的) -->
                 <div
@@ -35,9 +38,11 @@
                   >
                     <dl class="fore">
                       <dt>
-                        <a >{{
-                          c2.categoryName
-                        }}</a>
+                        <a
+                          :data-categoryName="c2.categoryName"
+                          :data-category2Id="c2.categoryId"
+                          >{{ c2.categoryName }}</a
+                        >
                       </dt>
                       <dd>
                         <!--三级分类-->
@@ -46,7 +51,8 @@
                           :key="c3.categoryId"
                         >
                           <a
-                            
+                            :data-categoryName="c3.categoryName"
+                            :data-category3Id="c3.categoryId"
                             >{{ c3.categoryName }}</a
                           >
                         </em>
@@ -74,31 +80,76 @@
 </template>
 <script>
 import { mapState } from "vuex";
+// 是把所有的lodash全部功能引入，不建议，按需引入
+import throttle from "lodash/throttle";
+// 最好的方式就是按需引入
+
 export default {
   name: "TypeNav",
   data() {
     return {
+      show: true,
       currentIndex: -1,
     };
   },
   mounted() {
-    this.$store.dispatch("categoryList");
+    // 如果不是home将typenav隐藏
+    if (this.$route.path !== "/home") {
+      this.show = false;
+    }
   },
   computed: {
-    ...mapState({ 
-      categoryList:state=>state.home.categoryList
-      })
+    ...mapState({
+      categoryList: (state) => state.home.categoryList,
+    }),
   },
   methods: {
-    enterHandler(index) {
-      //  鼠标进入修改响应数据
-      // 正常情况鼠标进入 触发每个
-      // 非正常情况：用户的操作过快，导致浏览器反应不过来，会出现卡顿xian
+    // throttle别用箭头函数
+    enterHandler: throttle(function (index) {
       this.currentIndex = index;
-      console.log("鼠标进入" + index);
-    },
+      // console.log('鼠标移入'+index);
+    }, 50),
     leaveHandler() {
       this.currentIndex = -1;
+      // 如果是search路由的时候才显示/隐藏
+      if (this.$route.path !== "/home") {
+        this.show = false;
+      }
+    },
+    goSearch(event) {
+      // 最好的解决方法，
+      // this.$router.push('/search')
+      // 把子节点a标签添加自定义属性data:categoryName
+      let element = event.target;
+      // 获取触发当前这个事件的节点  data-categoryName这样的节点就是a标签节点
+      let { categoryname, category1id, category2id, category3id } =
+        element.dataset;
+      // 如果标签身上有datagoryname就是a标签
+      if (categoryname) {
+        // 整理路由跳转的参数
+        let location = { name: "search" };
+        let query = { categoryName: categoryname };
+        // 一级分类 二级分类 三级分类
+        if (category1id) {
+          query.category1Id = category1id;
+        } else if (category2id) {
+          query.category2Id = category2id;
+        } else {
+          query.categor3Id = category3id;
+        }
+        // 整理完参数
+        console.log(location,query);
+        
+        if (this.$route.params) {
+          location.params = this.$route.params;
+          location.query = query;
+          this.$router.push(location);
+        }
+      }
+    },
+    // 当鼠标
+    entershow() {
+      this.show = true;
     },
   },
 };
@@ -218,6 +269,17 @@ export default {
           background-color: skyblue;
         }
       }
+    }
+
+    .sort-enter {
+      height: 0px;
+    }
+
+    .sort-enter-active {
+      transition: all 0.3s;
+    }
+    .sort-enter-to {
+      height: 461px;
     }
   }
 }

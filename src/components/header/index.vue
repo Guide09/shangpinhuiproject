@@ -72,7 +72,12 @@ export default {
       // 2、模板字符串传参
       // this.$router.push( `/Search/ + ${this.keyword}?k=${this.keyword.toUpperCase()}`
       // 3、对象形式传参
-      this.$router.push({name:"search",params:{keyword:this.keyword},query:{k:this.keyword.toUpperCase()}})
+      if(this.$route.query){
+        let location = {name:"search",params:{keyword:this.keyword || undefined}}
+       location.query = this.$route.query
+       this.$router.push(location)
+     }
+     
     },
     //退出登录的按钮的回调
     logout() {},
