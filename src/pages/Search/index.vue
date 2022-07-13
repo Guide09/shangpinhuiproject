@@ -110,35 +110,12 @@
               </li>
             </ul>
           </div>
-          <div class="fr page">
-            <div class="sui-pagination clearfix">
-              <ul>
-                <li class="prev disabled">
-                  <a href="#">«上一页</a>
-                </li>
-                <li class="active">
-                  <a href="#">1</a>
-                </li>
-                <li>
-                  <a href="#">2</a>
-                </li>
-                <li>
-                  <a href="#">3</a>
-                </li>
-                <li>
-                  <a href="#">4</a>
-                </li>
-                <li>
-                  <a href="#">5</a>
-                </li>
-                <li class="dotted"><span>...</span></li>
-                <li class="next">
-                  <a href="#">下一页»</a>
-                </li>
-              </ul>
-              <div><span>共10页&nbsp;</span></div>
-            </div>
-          </div>
+          <Pagination
+            :pageNo="searchList.pageNo"
+            :pageSize="searchList.pageSize"
+            :total="total"
+            :continues="5"
+          />
         </div>
       </div>
     </div>
@@ -148,6 +125,7 @@
 <script>
 import SearchSelector from "./SearchSelector/SearchSelector";
 import { mapGetters, mapState } from "vuex";
+import Pagination from "../../components/Pagination/index.vue";
 export default {
   name: "Search",
   data() {
@@ -169,6 +147,7 @@ export default {
   },
   components: {
     SearchSelector,
+    Pagination,
   },
   //钩子函数:beforeCreate、created、beforeMount.执行都是在mounted之前
   //整理参数不能在：beforeCreate因为不能获取VC属性、方法
@@ -203,6 +182,9 @@ export default {
     isAsc() {
       return this.searchList.order.indexOf("asc") != -1;
     },
+    ...mapState({
+      total: (state) => state.search.searchList.total,
+    }),
   },
   methods: {
     //  把请求的时候封装成一个函数，当需要的时候调用即可
@@ -267,14 +249,17 @@ export default {
     //排序方法 flag代表用户点击的是 综合还是价格
     sort(flag) {
       // 获取原始数据升序还是降序
-      let orginFlag = this.searchList.order.split(":")[0];
-      let orginSort = this.searchList.order.split(":")[1];
+      let orginOrder = this.searchList.order;
+      let orginFlag = orginOrder.split(":")[0];
+      let orginSort = orginOrder.split(":")[1];
       //准备一个新的order属性值
       let newOrder = "";
       // 用户一定点击的是综合
+      // 多次点击是不是同一标签 变化升降
       if (flag == orginFlag) {
         newOrder = `${orginFlag}:${orginSort == "desc" ? "asc" : "desc"}`;
       } else {
+        // 不同标签
         newOrder = `${flag}:${"desc"}`;
       }
       //重新赋值order

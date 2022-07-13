@@ -138,8 +138,8 @@ export default {
           query.categor3Id = category3id;
         }
         // 整理完参数
-        console.log(location,query);
-        
+        console.log(location, query);
+
         if (this.$route.params) {
           location.params = this.$route.params;
           location.query = query;

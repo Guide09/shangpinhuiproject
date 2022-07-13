@@ -16,10 +16,14 @@ import 'swiper/css/swiper.css'
 // 三级联动全局注册
 import Typenav from '@/components/TypeNav'
 import Carousel from '@/components/Carousel'
+import Pagination from '@/components/Pagination'
+
 //第一个参数：全局组件的名字
 // 第二个参数：哪一个组件
 Vue.component(Typenav.name, Typenav)
 Vue.component(Carousel.name, Carousel)
+Vue.component(Pagination.name, Pagination)
+
 
 new Vue({
   render: h => h(App),
