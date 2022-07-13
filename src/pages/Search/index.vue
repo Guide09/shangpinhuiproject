@@ -11,38 +11,56 @@
             </li>
           </ul>
           <ul class="fl sui-tag">
-            <li class="with-x">手机</li>
-            <li class="with-x">iphone<i>×</i></li>
-            <li class="with-x">华为<i>×</i></li>
-            <li class="with-x">OPPO<i>×</i></li>
+            <!-- 分类的关键字 -->
+            <li class="with-x" v-if="searchList.categoryName">
+              {{ searchList.categoryName }}<a @click="removecategoryName">x</a>
+            </li>
+            <!-- 关键字的面包屑 -->
+            <li class="with-x" v-if="searchList.keyword">
+              {{ searchList.keyword }}<a @click="removekeyword">x</a>
+            </li>
+            <!-- 品牌的关键字 -->
+            <li class="with-x" v-if="searchList.trademark">
+              {{ searchList.trademark.split(":")[1]
+              }}<a @click="removetrademark">x</a>
+            </li>
+            <!-- 平台售卖的属性值 -->
+            <li
+              class="with-x"
+              v-for="(attrValue, index) in searchList.props"
+              :key="index"
+            >
+              {{ attrValue.split(":")[1] }}<a @click="removeattr(index)">x</a>
+            </li>
           </ul>
         </div>
 
         <!--selector-->
-        <SearchSelector />
+        <SearchSelector @trademarkInfo="trademarkInfo" @attrInfo="attrInfo" />
 
         <!--details-->
         <div class="details clearfix">
           <div class="sui-navbar">
             <div class="navbar-inner filter">
               <ul class="sui-nav">
-                <li class="active">
-                  <a href="#">综合</a>
+                <li :class="{ active: isOne }" @click="sort(1)">
+                  <a
+                    >综合
+                    <span
+                      v-show="isOne"
+                      class="iconfont"
+                      :class="{ 'icon-up': isAsc, 'icon-arrow-down': isDesc }"
+                    ></span
+                  ></a>
                 </li>
-                <li>
-                  <a href="#">销量</a>
-                </li>
-                <li>
-                  <a href="#">新品</a>
-                </li>
-                <li>
-                  <a href="#">评价</a>
-                </li>
-                <li>
-                  <a href="#">价格⬆</a>
-                </li>
-                <li>
-                  <a href="#">价格⬇</a>
+                <li :class="{ active: isTwo }" @click="sort(2)">
+                  <a href="#"
+                    >价格<span
+                      v-show="isTwo"
+                      class="iconfont"
+                      :class="{ 'icon-up': isAsc, 'icon-arrow-down': isDesc }"
+                    ></span
+                  ></a>
                 </li>
               </ul>
             </div>
@@ -129,42 +147,163 @@
 
 <script>
 import SearchSelector from "./SearchSelector/SearchSelector";
-import { mapGetters } from "vuex";
-import { getEnvironmentData } from "worker_threads";
+import { mapGetters, mapState } from "vuex";
 export default {
   name: "Search",
   data() {
-    // return {
-    //     searchList: {
-    //     "category1Id": "",
-    //     "category2Id": "",
-    //     "category3Id": "",
-    //     "categoryName": "",
-    //     "keyword": "",
-    //     "order": "",
-    //     "pageNo": 1,
-    //     "pageSize": 10,
-    //     "props": [],
-    //     "trademark": ""
-    // }
-    // };
+    return {
+      //将来Search模块搜索的条件
+      searchList: {
+        category1Id: "", //一级分类的id
+        category2Id: "", //二级分类的id
+        category3Id: "", //三级分类的id
+        categoryName: "", //商品的名字
+        keyword: "", //用户搜索的关键字
+        props: [], //商品属性的搜索条件
+        trademark: "", //品牌的搜索条件
+        order: "1:desc", //排序的参数 【默认初始值:1:desc】
+        pageNo: 1, //当前分页器的页码  【默认初始值:1】
+        pageSize: 3, //代表当前一页显示几条数据 【默认初始值:10】
+      },
+    };
   },
   components: {
     SearchSelector,
   },
+  //钩子函数:beforeCreate、created、beforeMount.执行都是在mounted之前
+  //整理参数不能在：beforeCreate因为不能获取VC属性、方法
+  beforeMount() {
+    //商品分类搜索条件
+    // this.searchParams.category1Id = this.$route.query.category1Id;
+    // this.searchParams.category2Id = this.$route.query.category2Id;
+    // this.searchParams.category3Id = this.$route.query.category3Id;
+    // this.searchParams.categoryName = this.$route.query.categoryName;
+    Object.assign(this.searchList, this.$route.query, this.$route.params);
+  },
+  //组件挂载完毕次钩子执行一次,发请求
   mounted() {
-    // this.getData();
-    this.$store.dispatch("getSearchList", {});
+    //在发请求之前:整理用户搜索的参数
+    //组件挂载完毕发一次请求
+    this.getData();
+    //获取用户信息
   },
   computed: {
     // mapGetters传递的是数组，因为getters计算是没有划分模块的【home/search】
     ...mapGetters(["goodsList"]),
+    // 布尔值
+    isOne() {
+      return this.searchList.order.indexOf("1") != -1;
+    },
+    isTwo() {
+      return this.searchList.order.indexOf("2") != -1;
+    },
+    isDesc() {
+      return this.searchList.order.indexOf("desc") != -1;
+    },
+    isAsc() {
+      return this.searchList.order.indexOf("asc") != -1;
+    },
   },
   methods: {
-    // 把请求的时候封装成一个函数，当需要的时候调用即可
-    // getData() {
-      
-    // },
+    //  把请求的时候封装成一个函数，当需要的时候调用即可
+    getData() {
+      this.$store.dispatch("getSearchList", this.searchList);
+    },
+    // 删除分类的名字
+    removecategoryName() {
+      // 带给服务器参数可有可无
+      // this.searchList.categoryName = "";还是会带给服务器
+      this.searchList.categoryName = undefined;
+      this.searchParams.category1Id = undefined;
+      this.searchParams.category2Id = undefined;
+      this.searchParams.category3Id = undefined;
+      this.getData();
+      // 地址栏也需要修改，进行路由的跳转
+      if (this.$route.params) {
+        this.$router.push({ name: "search", params: this.$route.params });
+      }
+    },
+    // 删除关键字
+    removekeyword() {
+      this.searchList.keyword = undefined;
+      this.getData();
+      // 通知兄弟组件header清除关键字
+      this.$bus.$emit("clear");
+      // 进行路由跳转
+      if (this.$route.query) {
+        this.$router.push({ name: "search", query: this.$route.query });
+      }
+    },
+    // 自定义事件的回调
+    trademarkInfo(trademark) {
+      // console.log("我是父组件", trademark);
+      // 这个地方注意数据格式  往服务器发送数据的格式
+      this.searchList.trademark = `${trademark.tmId}:${trademark.tmName}`;
+      // 再次发请求
+      this.getData();
+    },
+    removetrademark() {
+      this.searchList.trademark = undefined;
+      this.getData();
+    },
+    // 收集平台属性的回调 自定义事件
+    attrInfo(attr, attrValue) {
+      // ["属性ID"："属性值"]
+      let props = `${attr.attrId}:${attrValue}:${attr.attrName}`;
+      // console.log(attr, attrValue);
+      // 数组去重
+      if (this.searchList.props.indexOf(props) == -1)
+        this.searchList.props.push(props);
+
+      this.getData();
+    },
+    // 删除售卖属性
+    removeattr(index) {
+      // 这里的index就是你点击的是哪一个
+      // console.log(index);
+      this.searchList.props.splice(index, 1);
+      this.getData();
+    },
+    //排序方法 flag代表用户点击的是 综合还是价格
+    sort(flag) {
+      // 获取原始数据升序还是降序
+      let orginFlag = this.searchList.order.split(":")[0];
+      let orginSort = this.searchList.order.split(":")[1];
+      //准备一个新的order属性值
+      let newOrder = "";
+      // 用户一定点击的是综合
+      if (flag == orginFlag) {
+        newOrder = `${orginFlag}:${orginSort == "desc" ? "asc" : "desc"}`;
+      } else {
+        newOrder = `${flag}:${"desc"}`;
+      }
+      //重新赋值order
+      this.searchList.order = newOrder;
+      this.getData();
+    },
+  },
+  //通过watch监听路由的变化---[商品的名字路由里面的吗]
+  watch: {
+    //监听组件VC的$route属性
+    //$route:{},应该用深度监听呀?
+    //$route，是vue-router提供的
+    $route() {
+      //再次整理最新的商品名字参数
+      // this.searchParams.category1Id = this.$route.query.category1Id;
+      // this.searchParams.category2Id = this.$route.query.category2Id;
+      // this.searchParams.category3Id = this.$route.query.category3Id;
+      // this.searchParams.categoryName = this.$route.query.categoryName;
+
+      //先把用户前面存储的1|2|3级别ID清除
+      //发ajax的时候,属性值为undefind,甚至参数K都不携带了【10个搜索条件,可有可无的】
+      this.searchParams.category1Id = undefined;
+      this.searchParams.category2Id = undefined;
+      this.searchParams.category3Id = undefined;
+      //路由变化整理参数：手机最新的商品名字、商品1|2|3ID
+      Object.assign(this.searchParams, this.$route.query, this.$route.params);
+      //再次发请求
+      this.getData();
+    },
   },
 };
 </script>
