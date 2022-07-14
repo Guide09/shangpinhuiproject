@@ -74,9 +74,10 @@
               >
                 <div class="list-wrap">
                   <div class="p-img">
-                    <a href="item.html" target="_blank"
-                      ><img :src="good.defaultImg"
-                    /></a>
+                    <!-- 路由跳转的时候千万别忘记带参数 -->
+                   <router-link :to="`/detail/${good.id}`">
+                      ><img :src="good.defaultImg" 
+                    /></router-link>
                   </div>
                   <div class="price">
                     <strong>
@@ -115,6 +116,7 @@
             :pageSize="searchList.pageSize"
             :total="total"
             :continues="5"
+            @getPageNo="getPageNo"
           />
         </div>
       </div>
@@ -264,6 +266,10 @@ export default {
       }
       //重新赋值order
       this.searchList.order = newOrder;
+      this.getData();
+    },
+    getPageNo(pageNo) {
+      this.searchList.pageNo = pageNo;
       this.getData();
     },
   },
