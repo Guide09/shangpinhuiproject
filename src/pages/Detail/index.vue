@@ -92,6 +92,12 @@
                     spuSaleAttrValue, index
                   ) in spuSaleAttr.spuSaleAttrValueList"
                   :key="spuSaleAttrValue.id"
+                  @click="
+                    changeActive(
+                      spuSaleAttrValue,
+                      spuSaleAttr.spuSaleAttrValueList
+                    )
+                  "
                 >
                   {{ spuSaleAttrValue.saleAttrValueName }}
                 </dd>
@@ -99,12 +105,23 @@
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt" />
-                <a href="javascript:" class="plus">+</a>
-                <a href="javascript:" class="mins">-</a>
+                <input
+                  autocomplete="off"
+                  class="itxt"
+                  v-model="skuNum"
+                  @change="changeSkuNum"
+                />
+                <a href="javascript:" class="plus" @click="skuNum++">+</a>
+                <a
+                  href="javascript:"
+                  class="mins"
+                  @click="skuNum > 1 ? skuNum-- : (skuNum = 1)"
+                  >-</a
+                >
               </div>
               <div class="add">
-                <a href="javascript:">加入购物车</a>
+                <!-- 跳转路由之前发请求 -->
+                <a @click="addShopcar">加入购物车</a>
               </div>
             </div>
           </div>
@@ -346,8 +363,14 @@
 import ImageList from "./ImageList/ImageList";
 import Zoom from "./Zoom/Zoom";
 import { mapGetters } from "vuex";
+import { query } from "express";
 export default {
   name: "Detail",
+  data() {
+    return {
+      skuNum: 1,
+    };
+  },
   components: {
     ImageList,
     Zoom,
@@ -360,6 +383,55 @@ export default {
     //给子组件的数据
     skuImageList() {
       return this.skuInfo.skuImageList || [];
+    },
+  },
+  methods: {
+    // 商品属性
+    changeActive(saleAttrValue, arr) {
+      // 遍历全部所有售卖属性ischecked属性 0不高亮
+      arr.forEach((item) => {
+        item.isChecked = 0;
+      });
+      // 点击的属性高亮
+      saleAttrValue.isChecked = 1;
+    },
+    // 表单元素修改个数
+    changeSkuNum(event) {
+      // 用户输入进来的文本 *1
+      // console.log(event.target.value);
+      let value = event.target.value * 1;
+      // 判断用户输入非法 出现nan或者小于1
+      if (isNAN(value) || value < 1) {
+        this.skuNum = 1;
+      } else {
+        // 大于1 并且是整数
+        this.skuNum = paeseInt(value);
+      }
+    },
+    //加入购物车按钮
+    async addOrUpdateCart() {
+      //   //派发action:携带的载荷，分别商品的id、商品个数
+      //   //思考底下的这行代码实质做了一个什么事情?
+      //   //实质就是调用了小仓库里面相应的这个函数->addOrUpdateCart,声明部分加上asyc,这个函数执行的结构一定是Promise
+      //   //返回结果是一个Promise对象【三种状态:pending、成功、失败】，返回状态到底是什么，取决于这个函数addOrUpdateCart返回结果
+      try {
+        //成功干什么
+        await this.$store.dispatch("addOrUpdateCart", {
+          skuId: this.$route.params.skuId,
+          skuNum: this.skuNum,
+        });
+        //路由跳转:携带参数,携带参数一般都是基本类型数据【字符串、数字等等】，引用类型数据白扯【传递过来路由获取不到】！！！
+        //浏览器存储功能，在路由跳转在之前，存储到浏览器中
+        sessionStorage.setItem("SKUINFO", JSON.stringify(this.skuInfo));
+        //路由跳转
+        this.$router.push({
+          path: "/addcartsuccess",
+          query: { skuNum: this.skuNum },
+        });
+      } catch (error) {
+        //失败干什么
+        alert("加入购物车失败");
+      }
     },
   },
 };

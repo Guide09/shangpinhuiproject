@@ -1,4 +1,4 @@
-import { reqGoodsInfo } from '@/api'
+import { reqGoodsInfo, reqAddOrUpadateShopCart } from '@/api'
 const state = {
     goodInfo: {}
 }
@@ -15,6 +15,18 @@ const actions = {
             commit("GETGOODINFO", result.data)
         }
     },
+    // 将产品添加到购物车
+    // 服务器写入数据成功，服务器没有返回数据不需要其它操作
+    async AddOrUpadateShopCart({ commit }, { skuId, skuNum }) {
+        let result = await reqAddOrUpadateShopCart(skuId, skuNum)
+        console.log(result);
+        //如果这个函数执行会返回一个promise
+        if(result.code == 200){
+            return 'ok'
+        }else{
+            return  Promise.reject(new Error('faile'))
+        }
+    }
 }
 const getters = {
     // 路径导航简化的数据
@@ -26,7 +38,7 @@ const getters = {
         return state.goodInfo.skuInfo || {}
     },
     // 产品的属性
-    spuSaleAttrList(){
+    spuSaleAttrList() {
         return state.goodInfo.spuSaleAttrList || []
     }
 }

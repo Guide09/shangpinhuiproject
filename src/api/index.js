@@ -9,6 +9,8 @@ export const reqCategoryList = () => requests({ method: 'get', url: '/product/ge
 export const reqGetSearchInfo = (params) => requests({ url: '/list', method: 'post', data: params });
 // /api/item/{ skuId } get 必带参数skuId
 export const reqGoodsInfo = (skuId) => requests({ method: 'get', url: `/item/${skuId}` });
+//将产品添加到购物车 /api/cart/addToCart/{ skuId }/{ skuNum } post
+export const reqAddOrUpadateShopCart = (skuId, skuNum) => requests({ method: 'post', url: `/cart/addToCart/${skuId}/${skuNum}` });
 
 
 //获取首页轮播图数据的接口
