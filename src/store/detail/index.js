@@ -21,7 +21,8 @@ const actions = {
         let result = await reqAddOrUpadateShopCart(skuId, skuNum)
         console.log(result);
         //如果这个函数执行会返回一个promise
-        if(result.code == 200){
+        // 7.17端口号不正确 后续需要修改
+        if(result.code == 201){
             return 'ok'
         }else{
             return  Promise.reject(new Error('faile'))

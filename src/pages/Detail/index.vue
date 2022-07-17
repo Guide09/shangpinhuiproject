@@ -121,7 +121,7 @@
               </div>
               <div class="add">
                 <!-- 跳转路由之前发请求 -->
-                <a @click="addShopcar">加入购物车</a>
+                <a @click="addOrUpdateCart">加入购物车</a>
               </div>
             </div>
           </div>
@@ -363,7 +363,7 @@
 import ImageList from "./ImageList/ImageList";
 import Zoom from "./Zoom/Zoom";
 import { mapGetters } from "vuex";
-import { query } from "express";
+
 export default {
   name: "Detail",
   data() {
@@ -409,23 +409,24 @@ export default {
       }
     },
     //加入购物车按钮
-    async addOrUpdateCart() {
-      //   //派发action:携带的载荷，分别商品的id、商品个数
-      //   //思考底下的这行代码实质做了一个什么事情?
-      //   //实质就是调用了小仓库里面相应的这个函数->addOrUpdateCart,声明部分加上asyc,这个函数执行的结构一定是Promise
-      //   //返回结果是一个Promise对象【三种状态:pending、成功、失败】，返回状态到底是什么，取决于这个函数addOrUpdateCart返回结果
-      try {
+     async addOrUpdateCart() {
+    //   //   //派发action:携带的载荷，分别商品的id、商品个数
+    //   //   //思考底下的这行代码实质做了一个什么事情?
+    //   //   //实质就是调用了小仓库里面相应的这个函数->addOrUpdateCart,声明部分加上asyc,这个函数执行的结构一定是Promise
+    //   //   //返回结果是一个Promise对象【三种状态:pending、成功、失败】，返回状态到底是什么，取决于这个函数addOrUpdateCart返回结果
+    //  sessionstory我叫哦巨大化爱的我还得
+     try {
         //成功干什么
-        await this.$store.dispatch("addOrUpdateCart", {
+        await this.$store.dispatch("AddOrUpadateShopCart", {
           skuId: this.$route.params.skuId,
           skuNum: this.skuNum,
         });
-        //路由跳转:携带参数,携带参数一般都是基本类型数据【字符串、数字等等】，引用类型数据白扯【传递过来路由获取不到】！！！
-        //浏览器存储功能，在路由跳转在之前，存储到浏览器中
-        sessionStorage.setItem("SKUINFO", JSON.stringify(this.skuInfo));
-        //路由跳转
+    //     //路由跳转:携带参数,携带参数一般都是基本类型数据【字符串、数字等等】，引用类型数据白扯【传递过来路由获取不到】！！！
+    //     //浏览器存储功能，在路由跳转在之前，存储到浏览器中
+    //     sessionStorage.setItem("SKUINFO", JSON.stringify(this.skuInfo));
+    //     //路由跳转
         this.$router.push({
-          path: "/addcartsuccess",
+          name: "addcartsuccess",
           query: { skuNum: this.skuNum },
         });
       } catch (error) {
