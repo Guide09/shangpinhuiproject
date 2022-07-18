@@ -76,7 +76,7 @@
                   <div class="p-img">
                     <!-- 路由跳转的时候千万别忘记带参数 -->
                    <router-link :to="`/detail/${good.id}`">
-                      ><img :src="good.defaultImg" 
+                      <img :src="good.defaultImg" 
                     /></router-link>
                   </div>
                   <div class="price">

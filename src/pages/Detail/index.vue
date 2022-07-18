@@ -121,7 +121,7 @@
               </div>
               <div class="add">
                 <!-- 跳转路由之前发请求 -->
-                <a @click="addOrUpdateCart">加入购物车</a>
+                <a @click="addshoplist">加入购物车</a>
               </div>
             </div>
           </div>
@@ -363,7 +363,6 @@
 import ImageList from "./ImageList/ImageList";
 import Zoom from "./Zoom/Zoom";
 import { mapGetters } from "vuex";
-
 export default {
   name: "Detail",
   data() {
@@ -401,36 +400,37 @@ export default {
       // console.log(event.target.value);
       let value = event.target.value * 1;
       // 判断用户输入非法 出现nan或者小于1
-      if (isNAN(value) || value < 1) {
+      if (isNaN(value) || value < 1) {
         this.skuNum = 1;
       } else {
         // 大于1 并且是整数
-        this.skuNum = paeseInt(value);
+        this.skuNum = parseInt(value);
       }
     },
-    //加入购物车按钮
-    async addOrUpdateCart() {
+      async addshoplist() {
       //派发action:携带的载荷，分别商品的id、商品个数
       //思考底下的这行代码实质做了一个什么事情?
       //实质就是调用了小仓库里面相应的这个函数->addOrUpdateCart,声明部分加上asyc,这个函数执行的结构一定是Promise
       //返回结果是一个Promise对象【三种状态:pending、成功、失败】，返回状态到底是什么，取决于这个函数addOrUpdateCart返回结果
-      //  sessionstory我叫哦巨大化爱的我还得
       try {
         //成功干什么
-        await this.$store.dispatch("AddOrUpadateShopCart", {
-          skuId: this.$route.params.skuId,
+      
+        await this.$store.dispatch("addOrUpdateCart", {
+          // params skuid注意小写（卢小玲）
+          skuId: this.$route.params.skuid,
           skuNum: this.skuNum,
         });
         //路由跳转:携带参数,携带参数一般都是基本类型数据【字符串、数字等等】，引用类型数据白扯【传递过来路由获取不到】！！！
         //浏览器存储功能，在路由跳转在之前，存储到浏览器中
-        //sessionStorage.setItem("SKUINFO", JSON.stringify(this.skuInfo));
+        sessionStorage.setItem('SKUINFO',JSON.stringify(this.skuInfo));
         //路由跳转
         this.$router.push({
-          name: "addcartsuccess",
-          query: { skuNum: this.skuNum },
+          path: "/addcartsuccess",
+          query: { skuNum: this.skuNum},
         });
       } catch (error) {
         //失败干什么
+        console.log(error.message);
         alert("加入购物车失败");
       }
     },

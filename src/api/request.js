@@ -2,6 +2,7 @@
 import axios from "axios";
 //引入进度条
 import nprogress from 'nprogress';
+import store from '@/store'
 //引入相关进度条的样式
 import "nprogress/nprogress.css";
 
@@ -14,13 +15,16 @@ let requests = axios.create({
 });
 
 //请求拦截器:将来项目中【N个请求】，只要发请求,会触发请求拦截器!!!
-requests.interceptors.request.use(config => {
+requests.interceptors.request.use((config) => {
     //请求拦截器:请求头【header】,请求头能否给服务器携带参数
     //请求拦截器：其实项目中还有一个重要的作用,给服务器携带请求们的公共的参数
     //进度条开始
+    if(store.state.detail.uuid_token){
+        // 请求头添加一个字段和后端老师商量好的
+        config.headers.userTempId = store.state.detail.uuid_token
+    }
     nprogress.start();
-
- 
+    console.log(store);
 
     //每一次发请求,请求头携带用户临时身份
     // config.headers.userTempId = SET_USERID();

@@ -1,6 +1,10 @@
-import { reqGoodsInfo, reqAddOrUpadateShopCart } from '@/api'
+import { reqGoodsInfo, reqAddOrUpdateCart } from '@/api'
+// 生成随机的字符串id 不能变
+import {GETUUID} from '@/utils/uuid_token'
 const state = {
-    goodInfo: {}
+    goodInfo: {},
+    // 顾客的临时身份
+    uuid_token:GETUUID()
 }
 const mutations = {
     GETGOODINFO(state, goodInfo) {
@@ -15,17 +19,18 @@ const actions = {
             commit("GETGOODINFO", result.data)
         }
     },
-    // 将产品添加到购物车
-    // 服务器写入数据成功，服务器没有返回数据不需要其它操作
-    async AddOrUpadateShopCart({ commit }, { skuId, skuNum }) {
-        let result = await reqAddOrUpadateShopCart(skuId, skuNum)
-        console.log(result);
-        //如果这个函数执行会返回一个promise
-        // 7.17端口号不正确 后续需要修改
-        if(result.code == 201){
-            return 'ok'
-        }else{
-            return  Promise.reject(new Error('faile'))
+    //加入购物车|将来修改商品个数的地方,右侧是载荷对象【两个K,两个V】
+    async addOrUpdateCart({ commit }, {skuId,skuNum}) {
+        //底下即为：加入购物车(修改商品个数)的请求,参数顺序不能瞎写
+        //skuId 注意大小写 2022-07-18
+        let result = await reqAddOrUpdateCart(skuId,skuNum);
+        if (result.code == 200) {
+            //如果加入购物车成功,返回promise即为成功
+            return "ok";
+        } else {
+            //如果加入购物车失败，返回失败的Promise
+            return Promise.reject(new Error('faile'))
+            // return Promise.reject();
         }
     }
 }

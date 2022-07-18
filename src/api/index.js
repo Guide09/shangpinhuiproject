@@ -10,8 +10,10 @@ export const reqGetSearchInfo = (params) => requests({ url: '/list', method: 'po
 // /api/item/{ skuId } get 必带参数skuId
 export const reqGoodsInfo = (skuId) => requests({ method: 'get', url: `/item/${skuId}` });
 //将产品添加到购物车 /api/cart/addToCart/{ skuId }/{ skuNum } post
-export const reqAddOrUpadateShopCart = (skuId, skuNum) => requests({ method: 'post', url: `/cart/addToCart/${skuId}/${skuNum}` });
+export const reqAddOrUpdateCart = (skuId, skuNum) => requests({ method: 'post', url: `/cart/addToCart/${skuId}/${skuNum}` });
 
+//获取用户购物车的数据接口
+export const reqShopCart = ()=>requests({url:'/cart/cartList',method:'get'});
 
 //获取首页轮播图数据的接口
 export const reqBannerList = () => mockrequests({ url: '/banner', method: 'get' });

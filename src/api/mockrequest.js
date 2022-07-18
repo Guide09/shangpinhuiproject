@@ -5,6 +5,8 @@ import axios from "axios";
 import nprogress from 'nprogress';
 //引入相关进度条的样式
 import "nprogress/nprogress.css";
+// 引入store
+
 
 //axios.create方法执行,其实返回一个axios和request一样的
 let requests = axios.create({
